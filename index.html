@@ -3392,7 +3392,7 @@ var N=STOPS.length;
 var W,H,AW,SC,ML,mobile,FOCUS=.5,idx=-1,panX=0;
 function layout(){
   W=innerWidth;H=innerHeight;mobile=W<760||W/H<0.8;FOCUS=mobile?.38:.5; // the line of the screen where a stop sits: above the sheet on phones
-  AW=W>=1000?W:Math.round(W*(W<520?2.9:W<760?2.1:1.2));   // phones show the land bigger, so the way down is longer and slower
+  AW=W>=1000?W:Math.round(W*(W<520?2.5:W<760?1.9:1.2));   // phones show the land bigger, so the way down is longer and slower
   SC=AW/ART_W;
   ML=Math.round(clamp(W/2-720*SC,W-AW,0)); // keep the middle of the art in view on narrow screens
   svg.style.width=AW+'px';svg.style.height=(ART_H*SC)+'px';svg.style.marginLeft=ML+'px';panX=0;lastPan=null;svg.style.translate="0 0";
@@ -3578,7 +3578,7 @@ function slowScrollTo(target){
   target=clamp(Math.round(target),0,document.documentElement.scrollHeight-innerHeight);
   var from=window.scrollY||0,dist=target-from;stopScroll();
   if(reduce||Math.abs(dist)<2){window.scrollTo(0,target);return}
-  var dur=clamp(Math.abs(dist)/(mobile?300:800)*1000,mobile?1600:900,mobile?5200:2800),t0=performance.now();   // phones: about 300 px a second on average, never faster than about 480 at the peak
+  var dur=clamp(Math.abs(dist)/(mobile?420:800)*1000,mobile?1200:900,mobile?4200:2800),t0=performance.now();   // phones: about 300 px a second on average, never faster than about 480 at the peak
   (function step(now){var t=Math.min(1,(now-t0)/dur),e=.5-Math.cos(Math.PI*t)/2;window.scrollTo(0,from+dist*e);scrollRaf=t<1?requestAnimationFrame(step):0})(t0);
 }
 function goTo(i){slowScrollTo(stopY(i)-H*FOCUS)}
@@ -3646,7 +3646,7 @@ function panArt(){
   if(want===lastPan)return;
   var first=lastPan===null;lastPan=want;panX=want;
   // a long, soft glide: the camera never snaps and never follows every pixel of the scroll
-  svg.style.transition=(first||reduce)?'none':'translate 3.4s cubic-bezier(.4,.1,.25,1)';
+  svg.style.transition=(first||reduce)?'none':'translate 2.4s cubic-bezier(.4,.1,.25,1)';
   svg.style.translate=want+'px 0';
 }
 function setupPan(){if(panCss)panCss.textContent='';svg.style.animation=''}
