@@ -2805,7 +2805,7 @@ var holder=null;
 function ensureArt(){
   if(!EMB||holder||document.getElementById('artG'))return;
   var art=document.querySelector('#world svg');if(!art)return;
-  holder=document.createElementNS(NS,'svg');holder.setAttribute('width','0');holder.setAttribute('height','0');holder.setAttribute('aria-hidden','true');holder.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
+  holder=document.createElementNS(NS,'svg');holder.setAttribute('class','avholder');holder.setAttribute('width','0');holder.setAttribute('height','0');holder.setAttribute('aria-hidden','true');holder.style.cssText='position:absolute;width:0;height:0;overflow:hidden';
   var d=document.createElementNS(NS,'defs'),g=document.createElementNS(NS,'g');g.setAttribute('id','artG');
   Array.prototype.forEach.call(art.children,function(c){
     var t=c.tagName.toLowerCase();if(t==='style'||t==='defs'||/namedview/.test(t))return;
