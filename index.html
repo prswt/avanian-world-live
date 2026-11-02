@@ -172,7 +172,7 @@ svg .z-all.hop .z-brows,svg .z-all:hover .z-brows{translate:0 -60px}
   .btn{font-size:15px;padding:11px 18px 12px}
   #rail{left:auto;right:calc(var(--gut) - 4px);top:50%}
   #rail button span{display:none}
-  #hint{top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 212px)}
+  #hint{display:none}
   .count{display:none}
   .mode{width:58px;height:32px}.mode .knob{width:24px;height:24px}body.night .mode .knob{transform:translateX(26px)}.mode svg{top:7px}.mode .i-sun{left:35px}
 }
@@ -3349,15 +3349,15 @@ var STOPS=[
   title:'به سرزمین آوانیان خوش آمدید',
   text:'نخستین زیست‌بوم تخصصی اوقات فراغت کودکان و نوجوانان ایران زمین. جزیره‌ها شناورند و هر کدام خانهٔ یک بخش از این سرزمین. زانیار راهنمای شماست.',
   btn:{t:'همهٔ بخش‌ها',pop:'hub'}},
- {name:'داستان',tag:'#E0654A',cx:485,cy:700,
+ {name:'داستان',tag:'#E0654A',cx:485,cy:700,px:930,
   title:'داستان سرزمین آوانیان',
   text:'«آوان» نام شهری باستانی در سرزمین عیلام است و در ریشهٔ کردی‌اش یعنی شادابی، سرسبزی و وسعت. «آوانیان» از «آوان» و «ایرانیان» ساخته شده؛ یعنی سرزمین شور و شادی.',
   btn:{t:'داستان کامل',pop:'story'}},
- {name:'مشاوره',tag:'#4FA37E',cx:790,cy:1230,px:960,
+ {name:'مشاوره',tag:'#4FA37E',cx:790,cy:1230,px:1040,
   title:'مشاوره و استعدادیابی',
   text:'روانشناسان و کارشناسان این حوزه، ساختار مشاوره و رغبت‌سنجی برای بچه‌ها و والدین ساخته‌اند؛ آنلاین در سایت و اپ، یا حضوری در نمایندگی‌ها. توانمندی و علاقهٔ بچه‌ها در چهار حوزه شناسایی می‌شود.',
   btn:{t:'آزمون کوتاه',pop:'consult'}},
- {name:'برنامه‌ریزی',tag:'#E08A4E',cx:640,cy:2000,
+ {name:'برنامه‌ریزی',tag:'#E08A4E',cx:640,cy:2000,px:590,
   title:'برنامه‌ریزی اوقات فراغت',
   text:'نخستین سامانهٔ برنامه‌ریزی و مدیریت اوقات فراغت کودکان و نوجوانان. والدین و بچه‌ها فعالیت‌ها را در «پلنر» می‌چینند و کوچینگ، کتاب و فیلم هم کنارش هست.',
   btn:{t:'پلنر را باز کنید',pop:'plan'}},
@@ -3377,7 +3377,7 @@ var STOPS=[
   title:'باشگاه اعضا',
   text:'اعضای باشگاه از خدمات و محصولات آوانیان مزایای ویژه می‌گیرند: بازگشت بخشی از هزینه به کیف پول، تخفیف اختصاصی، رویداد و کارگاه رایگان، و مشورهٔ رایگان برای والدین.',
   btn:{t:'مزایای باشگاه',pop:'club'}},
- {name:'فروشگاه',tag:'#C93A2E',cx:680,cy:4040,px:600,
+ {name:'فروشگاه',tag:'#C93A2E',cx:680,cy:4040,px:500,
   title:'فروشگاه و بازار',
   text:'نخستین فروشگاه اینترنتی و بازار تخصصی اوقات فراغت کودک و نوجوان، از بهار ۱۴۰۱. محصولات و خدمات در چهار بخش گردشگری، ورزش و سلامت، فرهنگ و هنر، و مهارت و سرگرمی عرضه می‌شود.',
   btn:{t:'فروشگاه',pop:'shop'}},
@@ -3392,7 +3392,7 @@ var N=STOPS.length;
 var W,H,AW,SC,ML,mobile,FOCUS=.5,idx=-1,panX=0;
 function layout(){
   W=innerWidth;H=innerHeight;mobile=W<760||W/H<0.8;FOCUS=mobile?.38:.5; // the line of the screen where a stop sits: above the sheet on phones
-  AW=W>=1000?W:Math.round(W*(W<520?2.5:W<760?1.9:1.2));   // phones show the land bigger, so the way down is longer and slower
+  AW=W>=1000?W:Math.round(W*(W<520?2.9:W<760?2.1:1.2));   // phones show the land bigger, so the way down is longer and slower
   SC=AW/ART_W;
   ML=Math.round(clamp(W/2-720*SC,W-AW,0)); // keep the middle of the art in view on narrow screens
   svg.style.width=AW+'px';svg.style.height=(ART_H*SC)+'px';svg.style.marginLeft=ML+'px';panX=0;lastPan=null;svg.style.translate="0 0";
@@ -3578,8 +3578,8 @@ function slowScrollTo(target){
   target=clamp(Math.round(target),0,document.documentElement.scrollHeight-innerHeight);
   var from=window.scrollY||0,dist=target-from;stopScroll();
   if(reduce||Math.abs(dist)<2){window.scrollTo(0,target);return}
-  var dur=clamp(Math.abs(dist)/(mobile?420:900)*1000,mobile?1100:800,mobile?3800:2600),t0=performance.now();   // phones: at most about 420 px a second
-  (function step(now){var t=Math.min(1,(now-t0)/dur),e=t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;window.scrollTo(0,from+dist*e);scrollRaf=t<1?requestAnimationFrame(step):0})(t0);
+  var dur=clamp(Math.abs(dist)/(mobile?300:800)*1000,mobile?1600:900,mobile?5200:2800),t0=performance.now();   // phones: about 300 px a second on average, never faster than about 480 at the peak
+  (function step(now){var t=Math.min(1,(now-t0)/dur),e=.5-Math.cos(Math.PI*t)/2;window.scrollTo(0,from+dist*e);scrollRaf=t<1?requestAnimationFrame(step):0})(t0);
 }
 function goTo(i){slowScrollTo(stopY(i)-H*FOCUS)}
 // the card can be folded into a small pill so the whole art is free to look at; the choice is remembered
@@ -3634,33 +3634,22 @@ function buildRail(){
 // on screens narrower than the art, the art slides sideways as you scroll so each island is in the middle of the screen.
 // It follows the scroll directly (no easing, so no lag) and only touches the page when the position really changed.
 var PAN=[{y:0,x:720}].concat(STOPS.map(function(s){return {y:s.cy,x:s.px||s.cx}})).concat([{y:ART_H,x:820}]),lastPan=null;
-function panFor(ay){                                   // where the art sits sideways when the screen centre is at height ay (art units)
-  var x=PAN[PAN.length-1].x;
-  for(var i=1;i<PAN.length;i++)if(ay<=PAN[i].y){var a=PAN[i-1],b=PAN[i],t=clamp((ay-a.y)/(b.y-a.y),0,1);t=t*t*(3-2*t);x=a.x+(b.x-a.x)*t;break}
+var panCss=null;
+function panForStop(i){                                // where the art sits sideways when island i is in focus
+  var s=STOPS[i],x=s.px||s.cx;
+  x=780+(x-780)*.7;                                      // 70% of the sideways distance only: calmer
   return Math.round((clamp(W/2-x*SC,W-AW,0)-ML)*2)/2;
 }
-var usingSD=false,panCss=null;
 function panArt(){
-  if(AW<=W+4){if(panX||lastPan){panX=0;lastPan=0;svg.style.translate='0 0'}return}
-  var want=panFor(((window.scrollY||0)+H*FOCUS)/SC);
-  if(want===lastPan)return;lastPan=want;panX=want;
-  if(!usingSD)svg.style.translate=want+'px 0';        // with a scroll timeline the browser moves it itself, in step with the scroll
+  if(AW<=W+4){if(panX||lastPan){panX=0;lastPan=0;svg.style.translate='0 0';svg.style.transition='none'}return}
+  var want=panForStop(nearestStop());
+  if(want===lastPan)return;
+  var first=lastPan===null;lastPan=want;panX=want;
+  // a long, soft glide: the camera never snaps and never follows every pixel of the scroll
+  svg.style.transition=(first||reduce)?'none':'translate 3.4s cubic-bezier(.4,.1,.25,1)';
+  svg.style.translate=want+'px 0';
 }
-// Best case: the browser ties the sideways move to the scroll position itself (no JavaScript, no lag, no shimmer).
-function setupPan(){
-  usingSD=false;
-  if(!panCss){panCss=document.createElement('style');document.head.appendChild(panCss)}
-  panCss.textContent='';svg.style.animation='';
-  if(AW<=W+4||!(window.CSS&&CSS.supports&&CSS.supports('animation-timeline','scroll()')))return;
-  var maxS=document.documentElement.scrollHeight-H;if(maxS<200)return;
-  var kf=[[0,panFor(H*FOCUS/SC)]];
-  PAN.forEach(function(p){var pr=(p.y*SC-H*FOCUS)/maxS;if(pr>.002&&pr<.998)kf.push([pr,panFor(p.y)])});
-  kf.push([1,panFor((maxS+H*FOCUS)/SC)]);
-  kf.sort(function(a,b){return a[0]-b[0]});
-  var css='@keyframes avpan{'+kf.map(function(k){return (k[0]*100).toFixed(3)+'%{translate:'+k[1]+'px 0;animation-timing-function:cubic-bezier(.42,0,.58,1)}'}).join('')+'}'+
-          '#world svg{animation:avpan 1s linear both;animation-timeline:scroll(root block)}';
-  panCss.textContent=css;usingSD=true;
-}
+function setupPan(){if(panCss)panCss.textContent='';svg.style.animation=''}
 
 /* ---------------- measured once, not every frame: where Zaniyar and the waterfalls are on the art ---------------- */
 var zr=null;
