@@ -200,6 +200,11 @@ svg .z-all.hop .z-brows,svg .z-all:hover .z-brows{translate:0 -60px}
   svg .logo-fit{display:none}
 }
 
+/* the portal to the Avanian website, floating on the sea at the last stop (layout() places it; ../portal/portal.css draws it) */
+#world .aportal{position:absolute;margin:0;z-index:2;--sky:#F4F1FA;will-change:translate}
+/* this page as the live view inside the website's portal: only the land, drifting */
+html.in-portal #top,html.in-portal #rail,html.in-portal #card,html.in-portal #hint,html.in-portal #bubble,html.in-portal #avroot{display:none!important}
+
 #avroot{
   --bg:#EAF8C8;--g1:#4FAF6B;--g2:#3C9A58;--g3:#6CC585;--g4:#DFF3C4;
   --ink:#1F2F26;--ink2:#566A5E;--card:#fff;--line:#E4EBDD;
@@ -596,7 +601,411 @@ svg.night .st129{fill:#556BC1;}
 svg.night .st130{stroke:#4E5CA8;}
 svg.night .st131{fill:#2B3466;}
 svg.night .st132{fill:#560C24;}
+/* portal.css: the dreamy doorway between the Avanian website and Avanian World (shared by both builds).
+   .aportal is a round window with a live view of the other site, three swirling rings, a liquid sheen, a halo and motes drawn by portal.js.
+   Everything that moves all the time is a CSS animation of transform or opacity only, so it runs on the compositor and stays smooth. */
+.aportal{--d:min(440px,84vw);--sky:#BFE3EA;position:relative;display:block;width:var(--d);aspect-ratio:1;margin-inline:auto;border-radius:50%;
+  text-decoration:none;color:#241F2E;isolation:isolate;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none}
+.aportal .ap-float{position:absolute;inset:0;border-radius:50%;animation:apBob 8s cubic-bezier(.45,0,.55,1) infinite}
+/* the window itself is never scaled while the live view shows: a page from another site would be redrawn on every frame */
+.ap-r1,.ap-r2,.ap-r3,.ap-halo{transition:scale .9s cubic-bezier(.22,1,.36,1)}
+.aportal:hover .ap-r1,.aportal:hover .ap-r3,.aportal:focus-visible .ap-r1{scale:1.04}
+.aportal:hover .ap-r2,.aportal:hover .ap-halo{scale:1.08}
+@keyframes apBob{0%,100%{translate:0 0}50%{translate:0 -12px}}
+
+/* soft light around it */
+.ap-halo{position:absolute;inset:-26%;border-radius:50%;z-index:-1;pointer-events:none;will-change:transform,opacity;
+  background:radial-gradient(closest-side,rgba(255,255,255,.95),rgba(214,204,255,.7) 40%,rgba(223,127,165,.3) 62%,rgba(91,147,207,.12) 80%,rgba(91,147,207,0) 100%);
+  animation:apBreathe 6s cubic-bezier(.45,0,.55,1) infinite}
+.ap-halo2{inset:-40%;opacity:.55;background:radial-gradient(closest-side,rgba(242,197,61,.22),rgba(141,120,224,.16) 50%,transparent 100%);animation-duration:9s;animation-delay:-3s}
+@keyframes apBreathe{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.08);opacity:1}}
+
+/* rings: each one is drawn once and only turned (transform), never repainted */
+.ap-ring{position:absolute;border-radius:50%;pointer-events:none;will-change:transform;animation:apSpin var(--t,18s) linear infinite}
+.ap-r1{--t:16s;inset:-5%;
+  background:conic-gradient(#8D78E0,#DF7FA5,#F2C53D,#FFFFFF,#4FA37E,#5B93CF,#BFB1F5,#DF7FA5,#8D78E0);
+  -webkit-mask:radial-gradient(closest-side,transparent 88%,#000 90%,#000 95%,transparent 99.5%);
+          mask:radial-gradient(closest-side,transparent 88%,#000 90%,#000 95%,transparent 99.5%)}
+.ap-r2{--t:26s;inset:-14%;animation-direction:reverse;filter:blur(10px);opacity:.85;
+  background:conic-gradient(from 90deg,rgba(141,120,224,.95),rgba(242,197,61,.8),rgba(255,255,255,.25),rgba(91,147,207,.9),rgba(223,127,165,.85),rgba(79,163,126,.6),rgba(141,120,224,.95));
+  -webkit-mask:radial-gradient(closest-side,transparent 68%,#000 80%,#000 87%,transparent 100%);
+          mask:radial-gradient(closest-side,transparent 68%,#000 80%,#000 87%,transparent 100%)}
+/* spiral arms that sweep round the rim */
+.ap-r3{--t:9s;inset:-10%;filter:blur(2.5px);opacity:.9;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,0) 0deg,rgba(255,255,255,.95) 7deg,rgba(214,204,255,.6) 14deg,rgba(255,255,255,0) 30deg,rgba(255,255,255,0) 45deg);
+  -webkit-mask:radial-gradient(closest-side,transparent 82%,#000 88%,rgba(0,0,0,.4) 95%,transparent 100%);
+          mask:radial-gradient(closest-side,transparent 82%,#000 88%,rgba(0,0,0,.4) 95%,transparent 100%)}
+@keyframes apSpin{to{transform:rotate(360deg)}}
+
+/* the window with the other site inside */
+.ap-window{position:absolute;inset:0;border-radius:50%;overflow:hidden;background:var(--sky);-webkit-mask-image:radial-gradient(#fff,#000);transform:translateZ(0)}
+.ap-sky{position:absolute;inset:0;background:
+  radial-gradient(40% 26% at 30% 68%,rgba(255,255,255,.85),transparent 70%),
+  radial-gradient(34% 22% at 72% 38%,rgba(255,255,255,.7),transparent 70%),
+  radial-gradient(circle at 50% 40%,rgba(255,255,255,.5),transparent 60%),var(--sky)}
+.ap-window iframe{position:absolute;left:50%;top:50%;width:1000px;height:1000px;margin:-500px 0 0 -500px;border:0;pointer-events:none;background:var(--sky);
+  transform:scale(var(--s,.44));opacity:0;transition:opacity 1.6s ease}
+.ap-window iframe.on{opacity:1}
+/* a vortex of light: what the window turns into while stepping through (and coming out) */
+.ap-vortex{position:absolute;inset:-30%;opacity:0;transition:opacity .45s ease;pointer-events:none}
+.ap-vortex i{position:absolute;inset:0;border-radius:50%;will-change:transform;animation:apSpin 2.2s linear infinite;
+  background:radial-gradient(closest-side,#fff 0,rgba(255,255,255,.96) 20%,rgba(255,255,255,.35) 48%,rgba(255,255,255,0) 70%),
+    conic-gradient(#D6CCFF,#FFFFFF 12%,#F9D3E3 25%,#FFFFFF 37%,#CDEBF1 50%,#FFFFFF 62%,#FCEBB8 75%,#FFFFFF 87%,#D6CCFF)}
+.ap-vortex i+i{animation-duration:3.4s;animation-direction:reverse;opacity:.5;
+  background:radial-gradient(closest-side,transparent 30%,rgba(255,255,255,.8) 75%,transparent 100%),
+    conic-gradient(from 45deg,rgba(141,120,224,.35),rgba(255,255,255,0) 20%,rgba(223,127,165,.3) 40%,rgba(255,255,255,0) 60%,rgba(91,147,207,.3) 80%,rgba(141,120,224,.35))}
+.aportal.ap-vortexing .ap-vortex{opacity:1}
+.aportal.ap-vortexing .ap-window iframe{opacity:0;transition:opacity .3s ease}
+.ap-view{position:absolute;inset:0;will-change:transform}
+/* liquid sheen turning slowly over the view */
+.ap-sheen{position:absolute;inset:-25%;pointer-events:none;mix-blend-mode:screen;opacity:.55;will-change:transform;animation:apSpin 30s linear infinite;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,0) 0deg,rgba(255,255,255,.35) 18deg,rgba(214,204,255,.0) 40deg,rgba(255,255,255,0) 60deg);
+  -webkit-mask:radial-gradient(closest-side,transparent 30%,#000 75%);mask:radial-gradient(closest-side,transparent 30%,#000 75%)}
+.ap-glass{position:absolute;inset:0;border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side,transparent 58%,rgba(141,120,224,.2) 80%,rgba(255,255,255,.85) 100%),
+             radial-gradient(55% 38% at 34% 18%,rgba(255,255,255,.5),transparent 70%)}
+.ap-rim{position:absolute;inset:0;border-radius:50%;pointer-events:none;will-change:opacity;
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.9),inset 0 0 26px 6px rgba(141,120,224,.55),inset 0 0 60px 10px rgba(223,127,165,.22);
+  animation:apRim 4.5s cubic-bezier(.45,0,.55,1) infinite}
+@keyframes apRim{0%,100%{opacity:.7}50%{opacity:1}}
+.ap-ripple{position:absolute;inset:0;border-radius:50%;pointer-events:none}
+.ap-ripple::before,.ap-ripple::after{content:"";position:absolute;inset:4%;border-radius:50%;border:1.5px solid rgba(255,255,255,.75);opacity:0;will-change:transform,opacity;
+  animation:apRipple 5s cubic-bezier(.3,0,.4,1) infinite}
+.ap-ripple::after{animation-delay:2.5s}
+@keyframes apRipple{0%{transform:scale(1.05);opacity:0}25%{opacity:.7}100%{transform:scale(.5);opacity:0}}
+.ap-motes{position:absolute;inset:-35%;width:170%;height:170%;pointer-events:none}
+
+.ap-label{position:absolute;left:50%;bottom:-4%;translate:-50% 0;z-index:2;direction:rtl;white-space:nowrap;
+  font-family:'Koodak',Tahoma,sans-serif;font-weight:900;font-size:clamp(15px,1.5vw,18px);line-height:1;padding:11px 20px 12px;border-radius:999px;
+  background:rgba(255,253,248,.9);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.9),0 6px 22px rgba(57,43,130,.16);
+  transition:translate .6s cubic-bezier(.22,1,.36,1),opacity .4s}
+.ap-label::before{content:"";display:inline-block;width:8px;height:8px;margin-inline-end:9px;vertical-align:2px;border-radius:50%;background:#8D78E0;box-shadow:0 0 0 4px rgba(141,120,224,.22);animation:apDot 1.8s ease-in-out infinite}
+@keyframes apDot{50%{box-shadow:0 0 0 8px rgba(141,120,224,0)}}
+.aportal:hover .ap-label,.aportal:focus-visible .ap-label{translate:-50% -5px}
+.aportal:focus-visible .ap-window{box-shadow:inset 0 0 0 4px #8D78E0}
+.aportal.ap-noview .ap-window iframe{display:none}
+.aportal.ap-going .ap-label{opacity:0}
+/* frosted glass on the page being zoomed would be re-blurred at a huge size on every frame */
+.ap-diving,.ap-diving *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* as the zoom starts the portal opens up into pure light: everything but the vortex fades, because each of these layers would be
+   redrawn at the huge zoomed size on every frame (the streaks drawn by portal.js carry the motion from here) */
+.aportal.ap-going :is(.ap-ring,.ap-halo,.ap-motes,.ap-sky,.ap-sheen,.ap-glass,.ap-rim,.ap-ripple){opacity:0!important;transition:opacity .4s ease .45s}
+.aportal.ap-going .ap-window{-webkit-mask-image:none}
+/* nothing moves while the portal is off screen */
+.aportal.ap-idle *,.aportal.ap-idle *::before,.aportal.ap-idle *::after{animation-play-state:paused!important}
+
+/* stepping through: the page dives into the portal, motes rush past, and everything blooms into soft light.
+   The next page starts from the very same light (html.portal-arrive), so the hand-over between the two pages can't be seen. */
+.ap-warp{position:fixed;inset:0;z-index:2147483647;pointer-events:none;opacity:0;
+  background:radial-gradient(circle at var(--cx,50%) var(--cy,50%),#FFFFFF 0,#FBF8FF 22%,#EEE7FF 48%,#DCD1FB 78%,#CBBDF5 100%)}
+.ap-warp em{position:absolute;left:50%;top:50%;translate:-50% -50%;font-style:normal;font-family:'Koodak',Tahoma,sans-serif;font-weight:900;
+  font-size:clamp(28px,5vw,54px);color:#392B82;white-space:nowrap;opacity:0;direction:rtl}
+.ap-streaks{position:fixed;inset:0;width:100vw;height:100vh;z-index:2147483646;pointer-events:none}
+html.portal-arrive::before{content:"";position:fixed;inset:0;z-index:2147483647;
+  background:radial-gradient(circle at 50% 50%,#FFFFFF 0,#FBF8FF 22%,#EEE7FF 48%,#DCD1FB 78%,#CBBDF5 100%)}
+
+@media (prefers-reduced-motion:reduce){
+  .aportal .ap-float,.ap-halo,.ap-ring,.ap-sheen,.ap-rim,.ap-ripple::before,.ap-ripple::after,.ap-label::before{animation:none}
+}
+
 </style>
+<script>
+/* portal.js: the dreamy doorway between the Avanian website (avanianapp.ir) and Avanian World (shared by both builds).
+   Markup: <a class="aportal" href="(page to step into)" data-view="(page shown live inside)" data-name="(name shown while stepping through)">
+             <span class="ap-label">…</span></a>
+   data-local-href / data-local-view are used instead when the page is opened from a local server (testing).
+   Any element with data-portal-go="(selector, default .aportal)" steps through that portal when clicked; window.AvPortal.go(el) does the same.
+   It runs in <head> so a visitor who arrives through a portal sees the light before the page paints.
+   ?portal=1 means this page is the live view inside the other site's portal: it hides its own chrome and drifts slowly down and up.
+   ?via=portal means the visitor just stepped through: the page zooms back out of its own portal.
+   The rings, sheen and halo are CSS animations (compositor only); JS only changes their speed, draws the motes and runs the two transitions. */
+(function () {
+  'use strict';
+  var root = document.documentElement, qs = location.search;
+  var INSIDE = /[?&]portal=1(&|$)/.test(qs);
+  var ARRIVE = !INSIDE && /[?&]via=portal(&|$)/.test(qs);
+  var RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  var V = 1000;                                   // the page inside is laid out at 1000 × 1000 px, then scaled down to the window
+  var COLORS = ['#8D78E0', '#DF7FA5', '#F2C53D', '#4FA37E', '#5B93CF', '#FFFFFF', '#BFB1F5'];
+  var DIVE = 'cubic-bezier(.75,0,.9,.4)', OUT = 'cubic-bezier(.16,1,.3,1)';
+  var going = false, hold = ARRIVE, waiting = [];   // while arriving, live views wait: loading one would stutter the zoom
+  if (INSIDE) root.classList.add('in-portal');
+  if (ARRIVE) root.classList.add('portal-arrive');
+
+  function mk(tag, cls, parent) { var e = document.createElement(tag); if (cls) e.className = cls; if (parent) parent.appendChild(e); return e }
+  function attr(el, k) { return (LOCAL && el.getAttribute('data-local-' + k)) || el.getAttribute(k === 'href' ? 'href' : 'data-' + k) }
+  function withParam(u, p) { var h = u.indexOf('#'), hash = h < 0 ? '' : u.slice(h); u = h < 0 ? u : u.slice(0, h); return u + (u.indexOf('?') < 0 ? '?' : '&') + p + hash }
+  function sceneOf(el) { return el.closest('[data-portal-scene]') || el.closest('main,#world') || el }
+  function ease(k, dt) { return 1 - Math.exp(-dt * k) }
+
+  /* ---------- one portal ---------- */
+  function mount(el) {
+    if (el._st) return;
+    var href = attr(el, 'href'), view = attr(el, 'view');
+    if (href) el.setAttribute('href', href);
+    var label = el.querySelector('.ap-label');
+    var fl = mk('span', 'ap-float');
+    mk('span', 'ap-halo ap-halo2', fl); mk('span', 'ap-halo', fl);
+    var win = mk('span', 'ap-window', fl);
+    mk('span', 'ap-sky', win);
+    var vw = mk('span', 'ap-view', win), fr = null;
+    if (INSIDE || !view) el.classList.add('ap-noview');
+    else {
+      fr = mk('iframe', '', vw);
+      fr.title = el.getAttribute('data-name') || ''; fr.tabIndex = -1;
+      fr.setAttribute('aria-hidden', 'true'); fr.setAttribute('scrolling', 'no');
+      fr.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+      fr.addEventListener('load', function () { if (fr.src) setTimeout(function () { fr.classList.add('on') }, 400) });
+    }
+    var vx = mk('span', 'ap-vortex', win); mk('i', '', vx); mk('i', '', vx);
+    mk('span', 'ap-sheen', win); mk('span', 'ap-glass', win); mk('span', 'ap-rim', win); mk('span', 'ap-ripple', win);
+    var rings = [mk('span', 'ap-ring ap-r2', fl), mk('span', 'ap-ring ap-r3', fl), mk('span', 'ap-ring ap-r1', fl)];
+    var cv = mk('canvas', 'ap-motes', fl), ctx = cv.getContext('2d');
+    el.insertBefore(fl, label || null);
+
+    var st = el._st = { rate: 1, want: 1, boost: 0, px: 0, py: 0, tx: 0, ty: 0, vis: false, raf: 0, last: 0, R: 0, C: 0, dpr: 1, motes: [], anims: null, fl: fl, frame: fr };
+    function anims() {   // the CSS animations whose speed follows the portal's mood (hover, stepping through)
+      if (!st.anims && el.getAnimations) st.anims = el.getAnimations({ subtree: true }).filter(function (a) { var t = a.effect && a.effect.target; return t && (t.classList.contains('ap-ring') || t.classList.contains('ap-sheen')) });
+      return st.anims || [];
+    }
+    function size() {
+      var d = win.clientWidth; if (!d) return;
+      el.style.setProperty('--s', (d / V).toFixed(4));
+      st.dpr = Math.min(2, devicePixelRatio || 1);
+      st.C = cv.clientWidth / 2; st.R = d / 2;
+      cv.width = Math.round(cv.clientWidth * st.dpr); cv.height = Math.round(cv.clientHeight * st.dpr);
+    }
+    function spawn(m, fresh) {
+      m.ang = Math.random() * 6.283; m.r = st.R * (fresh ? 1 + Math.random() * .62 : 1.4 + Math.random() * .24);
+      m.v = st.R * (.05 + Math.random() * .08); m.w = .2 + Math.random() * .28;
+      m.s = .8 + Math.random() * 2.1; m.c = COLORS[Math.floor(Math.random() * COLORS.length)]; m.ph = Math.random() * 6.283; m.life = fresh ? 1 : 0;
+      m.x = m.y = null; return m;
+    }
+    var n = innerWidth < 600 ? 30 : 52;
+    function tick(t) {
+      var dt = st.last ? Math.min((t - st.last) / 1000, .05) : 0; st.last = t;
+      // speed: rings, sheen and motes all follow one rate, eased so it never jumps
+      var r0 = st.rate; st.rate += (st.want + st.boost - st.rate) * ease(st.boost ? 2.2 : 2.6, dt);
+      if (Math.abs(st.rate - r0) > .004) anims().forEach(function (a) { a.playbackRate = st.rate });
+      // the view leans a little toward the pointer
+      var p0 = st.px, q0 = st.py; st.px += (st.tx - st.px) * ease(5, dt); st.py += (st.ty - st.py) * ease(5, dt);
+      if (Math.abs(st.px - p0) + Math.abs(st.py - q0) > .02) {
+        vw.style.transform = 'translate3d(' + st.px.toFixed(2) + 'px,' + st.py.toFixed(2) + 'px,0)';
+        rings.forEach(function (g, i) { g.style.translate = (-st.px * (.15 + i * .1)).toFixed(2) + 'px ' + (-st.py * (.15 + i * .1)).toFixed(2) + 'px' });
+      }
+      if (st.R) {
+        if (!st.motes.length) for (var i = 0; i < n; i++) st.motes.push(spawn({}, true));
+        var C = st.C, R = st.R, sp = Math.min(st.rate, 9);
+        ctx.setTransform(st.dpr, 0, 0, st.dpr, 0, 0); ctx.clearRect(0, 0, C * 2, C * 2); ctx.lineCap = 'round';
+        for (var j = 0; j < st.motes.length; j++) {
+          var m = st.motes[j];
+          m.life += dt; m.r -= m.v * dt * sp; m.ang += m.w * dt * sp * (R * 1.3 / m.r);
+          if (m.r < R * .9) { spawn(m); continue }
+          var a = Math.min(1, m.life / .9) * Math.min(1, (m.r - R * .9) / (R * .2)), s = m.s * (.75 + .25 * Math.sin(t / 300 + m.ph));
+          var x = C + Math.cos(m.ang) * m.r, y = C + Math.sin(m.ang) * m.r * .96;
+          if (m.x !== null) {          // a short trail along the spiral, longer when the portal spins faster
+            ctx.globalAlpha = a * .5; ctx.strokeStyle = m.c; ctx.lineWidth = s * 1.1;
+            ctx.beginPath(); ctx.moveTo(m.x + (m.x - x) * (1 + sp * .6), m.y + (m.y - y) * (1 + sp * .6)); ctx.lineTo(x, y); ctx.stroke();
+          }
+          ctx.globalAlpha = a * .22; ctx.fillStyle = m.c; ctx.beginPath(); ctx.arc(x, y, s * 3.4, 0, 6.283); ctx.fill();
+          ctx.globalAlpha = a; ctx.beginPath(); ctx.arc(x, y, s, 0, 6.283); ctx.fill();
+          m.x = x; m.y = y;
+        }
+        ctx.globalAlpha = 1;
+      }
+      st.raf = (st.vis || st.boost) ? requestAnimationFrame(tick) : 0;
+    }
+    st.wake = function () { if (!st.raf && !RM) { st.last = 0; st.raf = requestAnimationFrame(tick) } };
+    function show(on) {
+      st.vis = on; el.classList.toggle('ap-idle', !on);
+      if (!going && !RM) sceneOf(el).style.willChange = on ? 'transform' : '';   // ready for the dive, so starting it costs nothing
+      if (on) st.wake();
+      if (RM && on) { size(); tick(performance.now()) }   // reduced motion: one still frame
+    }
+    size();
+    if ('ResizeObserver' in window) new ResizeObserver(size).observe(win); else addEventListener('resize', size);
+    // the live view loads only when the portal comes near the screen; the motes only run while it is on screen
+    st.load = function () { if (!fr || fr.src) return; if (hold) { if (waiting.indexOf(st) < 0) waiting.push(st) } else fr.src = view };
+    if ('IntersectionObserver' in window) {
+      if (fr) new IntersectionObserver(function (es, o) { if (es[0].isIntersecting) { st.load(); o.disconnect() } }, { rootMargin: '700px 0px' }).observe(el);
+      new IntersectionObserver(function (es) { show(es[0].isIntersecting) }, { rootMargin: '120px 0px' }).observe(el);
+    } else { st.load(); show(true) }
+
+    el.addEventListener('pointermove', function (e) {
+      if (going) return;
+      var r = win.getBoundingClientRect();
+      st.tx = -((e.clientX - r.left) / r.width - .5) * 26; st.ty = -((e.clientY - r.top) / r.height - .5) * 26; st.want = 2.2; st.wake();
+    });
+    el.addEventListener('pointerleave', function () { if (!going) { st.tx = st.ty = 0; st.want = 1 } });
+    el.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;   // let new-tab clicks through
+      e.preventDefault(); go(el);
+    });
+  }
+
+  /* ---------- geometry ---------- */
+  function centre(el) {
+    var w = el && el.querySelector('.ap-window'), r = w && w.getBoundingClientRect();
+    if (!r || !r.width || r.bottom < 0 || r.top > innerHeight) return null;
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, r: r.width / 2 };
+  }
+  function far(c) { return Math.hypot(Math.max(c.x, innerWidth - c.x), Math.max(c.y, innerHeight - c.y)) }
+  function aim(scene, c) {          // zoom the scene around the portal's centre; returns the scale at which the window covers the screen
+    var r = scene.getBoundingClientRect();
+    scene.style.transformOrigin = (c.x - r.left).toFixed(1) + 'px ' + (c.y - r.top).toFixed(1) + 'px';
+    scene.style.willChange = 'transform';
+    return Math.min(9, far(c) / c.r * 1.08);
+  }
+  function overlay(c, name) {
+    var ov = mk('div', 'ap-warp'); ov.setAttribute('aria-hidden', 'true');
+    if (c) { ov.style.setProperty('--cx', c.x + 'px'); ov.style.setProperty('--cy', c.y + 'px') }
+    if (name) mk('em', '', ov).textContent = name;
+    document.body.appendChild(ov);
+    return ov;
+  }
+  /* motes that rush outward past the camera while it dives in (or out of) the portal */
+  function streaks(c, dur, inward) {
+    var cv = mk('canvas', 'ap-streaks'), ctx = cv.getContext('2d'), dpr = Math.min(2, devicePixelRatio || 1);
+    cv.width = innerWidth * dpr; cv.height = innerHeight * dpr; document.body.appendChild(cv);
+    var F = far(c), ps = [], t0 = performance.now();
+    for (var i = 0; i < (innerWidth < 600 ? 70 : 130); i++) ps.push({ a: Math.random() * 6.283, d: c.r * (.2 + Math.random() * .9), v: 60 + Math.random() * 220, s: .6 + Math.random() * 1.8, c: COLORS[i % COLORS.length], k: Math.random() });
+    (function step(t) {
+      var p = Math.min(1, (t - t0) / dur);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, innerWidth, innerHeight); ctx.lineCap = 'round';
+      var acc = inward ? 1 - p : p, fade = inward ? Math.min(1, (1 - p) * 3) : Math.min(1, p * 4);
+      for (var i = 0; i < ps.length; i++) {
+        var q = ps[i], d = q.d + (F * 1.3) * Math.pow(acc, 2.2) * (.4 + q.k), len = 6 + d * .18 * acc;
+        var x = c.x + Math.cos(q.a) * d, y = c.y + Math.sin(q.a) * d;
+        ctx.globalAlpha = fade * (.35 + q.k * .65); ctx.strokeStyle = q.c; ctx.lineWidth = q.s * (1 + acc * 1.5);
+        ctx.beginPath(); ctx.moveTo(x - Math.cos(q.a) * len, y - Math.sin(q.a) * len); ctx.lineTo(x, y); ctx.stroke();
+      }
+      if (p < 1) requestAnimationFrame(step); else cv.remove();
+    })(t0);
+    return cv;
+  }
+
+  // the live view dissolves into the vortex before anything scales (and comes back after), so the zoom never redraws the other site
+  function vortex(el, on) {
+    el.classList.toggle('ap-vortexing', on);
+    var fr = el._st && el._st.frame; if (!fr) return;
+    clearTimeout(fr._vt);
+    if (on) fr._vt = setTimeout(function () { fr.style.visibility = 'hidden' }, 320); else fr.style.visibility = '';
+  }
+
+  /* ---------- stepping through: anticipation, a dive into the portal, then soft light ---------- */
+  function go(el) {
+    if (going || !el) return; going = true;
+    var st = el._st, dest = withParam(el.href, 'via=portal'), c = centre(el);
+    el.classList.add('ap-going');
+    if (RM || !el.animate || !c) {
+      var o = overlay(c, el.getAttribute('data-name'));
+      if (o.animate) o.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 350, fill: 'forwards' });
+      setTimeout(function () { location.href = dest }, 380); return;
+    }
+    if (st) { st.tx = st.ty = 0; st.want = 1; st.boost = 7; st.wake() }
+    // 1. the live view melts into a vortex of light, then the portal draws a breath
+    vortex(el, true);
+    st.fl.animate([{ scale: 1 }, { scale: .94, offset: .45 }, { scale: 1.06 }], { duration: 420, delay: 330, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' });
+    // 2. the camera dives in: the whole scene grows around the portal until its window fills the screen
+    var scene = sceneOf(el), S = aim(scene, c);
+    setTimeout(function () {
+      // longer than the wait before leaving, so it never comes to rest (resting at a big scale would make the browser redraw it all)
+      scene.classList.add('ap-diving');
+      scene.animate([{ transform: 'scale(1)' }, { transform: 'scale(' + (S * 1.25).toFixed(3) + ')' }], { duration: 1750, easing: DIVE, fill: 'forwards' });
+      streaks(c, 1350, false);
+    }, 560);
+    setTimeout(function () { scene.style.visibility = 'hidden' }, 1800);   // the light covers it all by now: stop drawing the page underneath
+    // 3. it all blooms into light; the next page starts from the same light
+    var ov = overlay(c, el.getAttribute('data-name'));
+    ov.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 650, delay: 1150, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' });
+    var em = ov.querySelector('em');
+    if (em) em.animate([{ opacity: 0, transform: 'scale(.9)', filter: 'blur(6px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 600, delay: 1450, easing: OUT, fill: 'forwards' });
+    setTimeout(function () { location.href = dest }, 2100);
+  }
+
+  /* ---------- arriving: the page comes out of its own portal ---------- */
+  function arrive() {
+    try { var u = new URL(location.href); u.searchParams.delete('via'); history.replaceState(history.state, '', u.pathname + u.search + u.hash) } catch (e) {}
+    var ov = overlay(null, ''); ov.style.opacity = 1;
+    root.classList.remove('portal-arrive');
+    if (RM || !ov.animate) { setTimeout(function () { ov.remove(); hold = false; waiting.splice(0).forEach(function (st) { st.load() }) }, 250); return }
+    function release() { hold = false; waiting.splice(0).forEach(function (st) { st.load() }) }
+    // wait until the page has fully loaded and scrolled to its portal, then zoom back out of it
+    function start() { requestAnimationFrame(function () { requestAnimationFrame(reveal) }) }
+    function reveal() {
+      var p = document.querySelector('.aportal');
+      if (p) p.scrollIntoView({ block: 'center', behavior: 'instant' });   // the page may still have been settling when it jumped to its portal
+      var c = centre(p);
+      if (p && c && p._st) {
+        var st = p._st, scene = sceneOf(p), S = Math.min(2.2, aim(scene, c));   // a gentle start: the light hides the first part anyway
+        st.rate = 8; st.boost = 0; st.want = 1; st.wake();
+        p.classList.add('ap-vortexing');
+        setTimeout(function () { p.classList.remove('ap-vortexing') }, 1500);   // the vortex settles back into the sky as the page comes to rest
+        var z = scene.animate([{ transform: 'scale(' + S.toFixed(3) + ')' }, { transform: 'scale(1)' }], { duration: 1600, easing: OUT });
+        z.onfinish = function () { scene.style.willChange = st.vis ? 'transform' : ''; scene.style.transformOrigin = ''; setTimeout(release, 200) };
+        streaks(c, 1100, true);
+        ov.style.setProperty('--cx', c.x + 'px'); ov.style.setProperty('--cy', c.y + 'px');
+      }
+      else setTimeout(release, 900);
+      ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 1000, easing: 'cubic-bezier(.3,0,.2,1)', fill: 'forwards' }).onfinish = function () { ov.remove() };
+    }
+    var t0 = performance.now();
+    function ready() { setTimeout(start, Math.max(0, 450 - (performance.now() - t0))) }
+    if (document.readyState === 'complete') ready(); else addEventListener('load', ready, { once: true });
+  }
+
+  /* ---------- the live view inside the other site's portal drifts slowly down the page and back up ---------- */
+  function drift() {
+    if (RM) return;
+    var y = 0, v = 0, dir = 1, wait = 2.5, last = 0;
+    function step(t) {
+      var dt = last ? Math.min((t - last) / 1000, .05) : 0; last = t;
+      var max = Math.max(0, document.documentElement.scrollHeight - innerHeight);
+      if (wait > 0) { wait -= dt; v = 0 }
+      else {
+        var want = dir > 0 ? 28 : 80;
+        v += (want - v) * ease(.8, dt);                       // ease into the drift instead of starting at full speed
+        y += dir * v * dt;
+        if (y >= max) { y = max; dir = -1; wait = 3 } else if (y <= 0) { y = 0; dir = 1; wait = 3 }
+        window.scrollTo({ top: y, behavior: 'instant' });
+      }
+      requestAnimationFrame(step);
+    }
+    setTimeout(function () { requestAnimationFrame(step) }, 1200);
+  }
+
+  function init() {
+    Array.prototype.forEach.call(document.querySelectorAll('.aportal'), mount);
+    document.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-portal-go]');
+      if (!b) return;
+      var p = document.querySelector(b.getAttribute('data-portal-go') || '.aportal');
+      if (!p) return;
+      e.preventDefault();
+      var c = centre(p);
+      if (c) go(p);
+      else { p.scrollIntoView({ behavior: RM ? 'auto' : 'smooth', block: 'center' }); setTimeout(function () { go(p) }, 900) }
+    });
+    if (INSIDE) drift();
+    if (ARRIVE) arrive();
+  }
+  // coming back with the browser's back button restores the page as it was left: undo the dive
+  addEventListener('pageshow', function (e) {
+    if (!e.persisted) return;
+    going = false;
+    Array.prototype.forEach.call(document.querySelectorAll('.ap-warp,.ap-streaks'), function (o) { o.remove() });
+    Array.prototype.forEach.call(document.querySelectorAll('.aportal'), function (p) {
+      p.classList.remove('ap-going'); vortex(p, false);
+      var sc = sceneOf(p); if (sc.getAnimations) sc.getAnimations().forEach(function (a) { a.cancel() }); sc.style.willChange = ''; sc.style.visibility = ''; sc.classList.remove('ap-diving');
+      if (p._st) { p._st.boost = 0; p._st.want = 1; p._st.fl.getAnimations().forEach(function (a) { a.cancel() }) }
+    });
+  });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  window.AvPortal = { go: function (el) { go(typeof el === 'string' ? document.querySelector(el) : el || document.querySelector('.aportal')) } };
+})();
+
+</script>
 </head>
 <body>
 <div id="world"><svg role="img" aria-label="سرزمین آوانیان؛ جزیره‌های شناور، آبشارها و ابرها" version="1.1"
@@ -3283,7 +3692,9 @@ svg.night .st132{fill:#560C24;}
   <g><ellipse cx="90" cy="132" rx="56" ry="20" fill="#D98E12"/><rect x="34" y="112" width="112" height="20" fill="#D98E12"/><ellipse cx="90" cy="112" rx="56" ry="20" fill="#F5B82E"/><ellipse cx="90" cy="112" rx="40" ry="13" fill="#FFD766"/></g>
   <g><ellipse cx="96" cy="100" rx="56" ry="20" fill="#D98E12"/><rect x="40" y="80" width="112" height="20" fill="#D98E12"/><ellipse cx="96" cy="80" rx="56" ry="20" fill="#F5B82E"/><ellipse cx="96" cy="80" rx="40" ry="13" fill="#FFD766"/></g>
   <g><ellipse cx="86" cy="68" rx="56" ry="20" fill="#D98E12"/><rect x="30" y="48" width="112" height="20" fill="#D98E12"/><ellipse cx="86" cy="48" rx="56" ry="20" fill="#F5B82E"/><ellipse cx="86" cy="48" rx="40" ry="13" fill="#FFD766"/></g>
-</g></g></g></svg></div>
+</g></g></g></svg><a class="aportal" id="landPortal" href="https://avanianapp.ir/#land" data-view="https://avanianapp.ir/?portal=1"
+  data-local-href="/00%20-%20LATEST%20(start%20here)/index.html#land" data-local-view="http://localhost:8765/00%20-%20LATEST%20(start%20here)/index.html?portal=1"
+  data-name="اپ آوانیان" aria-label="دریچه‌ای به سایت اپ آوانیان"><span class="ap-label">اپ آوانیان</span></a></div>
 <div id="bubble" role="status" aria-live="polite"></div>
 
 <header id="top">
@@ -3381,11 +3792,16 @@ var STOPS=[
   title:'فروشگاه و بازار',
   text:'نخستین فروشگاه اینترنتی و بازار تخصصی اوقات فراغت کودک و نوجوان، از بهار ۱۴۰۱. محصولات و خدمات در چهار بخش گردشگری، ورزش و سلامت، فرهنگ و هنر، و مهارت و سرگرمی عرضه می‌شود.',
   btn:{t:'فروشگاه',pop:'shop'}},
- {name:'آوان کوین',tag:'#E0A21C',cx:870,cy:4130,last:true,
+ {name:'آوان کوین',tag:'#E0A21C',cx:870,cy:4130,
   title:'آوان کوین',
   text:'واحد پول اختصاصی سرزمین آوانیان؛ قابل تبدیل با تومان. والدین از آن برای بازی‌وار کردن فعالیت‌های فراغتی فرزندشان استفاده می‌کنند. شب این سرزمین را هم با دکمهٔ خورشید و ماه ببینید.',
-  btn:{t:'کیف پول آوان کوین',pop:'coin'}}
+  btn:{t:'کیف پول آوان کوین',pop:'coin'}},
+ {name:'دریچه',tag:'#8D78E0',cx:900,cy:4400,last:true,
+  title:'دریچه‌ای به اپ آوانیان',
+  text:'از این دریچه سایت اپ آوانیان پیداست؛ اپی که بچه در آن با نازو بازی می‌کند و یاد می‌گیرد، و شما هر هفته خلاصه‌ای آرام از روزهایش می‌بینید. روی دریچه بزنید و به آن طرف بروید.',
+  btn:{t:'ورود به اپ آوانیان',portal:true}}
 ];
+var PORTAL={x:900,y:4400,d:400},portalEl=$id('landPortal');   // the portal floats on the sea, at the last stop (../portal/)
 var N=STOPS.length;
 
 /* ---------------- layout: art fills the width, always (no white sides) ---------------- */
@@ -3397,10 +3813,13 @@ function layout(){
   ML=Math.round(clamp(W/2-720*SC,W-AW,0)); // keep the middle of the art in view on narrow screens
   svg.style.width=AW+'px';svg.style.height=(ART_H*SC)+'px';svg.style.marginLeft=ML+'px';panX=0;lastPan=null;svg.style.translate="0 0";
   world.style.height=(ART_H*SC)+'px';
+  if(portalEl){var d=Math.round(clamp(PORTAL.d*SC,200,420));portalEl.style.setProperty('--d',d+'px');
+    portalEl.style.left=(ML+PORTAL.x*SC-d/2)+'px';portalEl.style.top=(PORTAL.y*SC-d/2)+'px';portalEl.style.translate='0 0'}
   window.dispatchEvent(new Event("world:layout"));
 }
 function stopY(i){return STOPS[i].cy*SC}
 function nearestStop(){
+  if(window.scrollY+H>=document.documentElement.scrollHeight-4)return N-1;   // at the very bottom: the portal, which can't reach the focus line
   var y=(window.scrollY+H*FOCUS)/SC,best=0,bd=1e9;
   STOPS.forEach(function(s,i){var d=Math.abs(s.cy-y);if(d<bd){bd=d;best=i}});
   return best;
@@ -3605,13 +4024,14 @@ function setCard(i,first){
     inn.style.setProperty('--rot',(sideFor(i)==='R'?1.5:-1.5)+'deg');
     inn.innerHTML=html;inn.classList.remove('out');void inn.offsetWidth;inn.classList.add('in');
     setFold(folded,true);
-    var sb=$('#sbtn');if(sb)sb.onclick=function(){if(window.AV)window.AV.popup(s.btn.pop)};
+    if(mobile&&s.btn&&s.btn.portal)card.classList.add('min');   // on phones the portal stop shows as a pill so the sheet does not cover the portal
+    var sb=$('#sbtn');if(sb)sb.onclick=function(){if(s.btn.portal){if(window.AvPortal)window.AvPortal.go(portalEl)}else if(window.AV)window.AV.popup(s.btn.pop)};
     $('#cmin').onclick=function(e){e.stopPropagation();setFold(!folded)};
     $('#cprev').onclick=function(){if(i>0)goTo(i-1)};
     $('#cnext').onclick=function(){if(i<N-1)goTo(i+1);else slowScrollTo(0)};
   },first?0:220);
 }
-$('#cardIn').addEventListener('click',function(e){if(folded&&!e.target.closest('#cmin'))setFold(false)}); // tap the pill to open it again
+$('#cardIn').addEventListener('click',function(e){if($('#card').classList.contains('min')&&!e.target.closest('#cmin'))setFold(false)}); // tap the pill to open it again
 addEventListener('keydown',function(e){if(e.key==='Escape'&&!folded)setFold(true)});
 var cardT;
 function setIndex(i){
@@ -3641,13 +4061,14 @@ function panForStop(i){                                // where the art sits sid
   return Math.round((clamp(W/2-x*SC,W-AW,0)-ML)*2)/2;
 }
 function panArt(){
-  if(AW<=W+4){if(panX||lastPan){panX=0;lastPan=0;svg.style.translate='0 0';svg.style.transition='none'}return}
+  if(AW<=W+4){if(panX||lastPan){panX=0;lastPan=0;svg.style.translate='0 0';svg.style.transition='none';if(portalEl)portalEl.style.translate='0 0'}return}
   var want=panForStop(nearestStop());
   if(want===lastPan)return;
   var first=lastPan===null;lastPan=want;panX=want;
   // a long, soft glide: the camera never snaps and never follows every pixel of the scroll
   svg.style.transition=(first||reduce)?'none':'translate 2.4s cubic-bezier(.4,.1,.25,1)';
   svg.style.translate=want+'px 0';
+  if(portalEl){portalEl.style.transition=svg.style.transition;portalEl.style.translate=want+'px 0'}   // the portal moves with the land
 }
 function setupPan(){if(panCss)panCss.textContent='';svg.style.animation=''}
 
@@ -3693,6 +4114,7 @@ addEventListener('pointermove',function(e){lastPX=e.clientX;lastPY=e.clientY},{p
 
 /* ---------------- boot ---------------- */
 layout();buildRail();rigClouds();rigWater();rigZaniyar();setupPan();setTimeout(measure,200);
+if(location.hash==='#portal')setTimeout(function(){window.scrollTo(0,document.documentElement.scrollHeight)},60);   // arriving through the website's portal: come out of this one
 addEventListener('resize',function(){
   if(innerWidth===W&&Math.abs(innerHeight-H)<160){H=innerHeight;return}   // only the phone's address bar moved: keep everything where it is
   layout();idx=-1;setupPan()});
